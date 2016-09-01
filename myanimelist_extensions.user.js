@@ -14,10 +14,12 @@
 var avgScoreRegex = /<div class="fl-l score".+?>\s+(.+?)\s+<\/div>/;
 var avgScoreVotesRegex = /<div class="fl-l score".+?data-user="(.+?) /;
 var genresRegex = /<span class="dark_text">Genres:<\/span>\s+(.+?)<\/div>/;
+var popularityRegex = /Popularity:.+?\s+(.+?)\s+<\/div>/;
 
 // list header
 $listHeader = $('.list-table-header');
 $listHeader.append('<th class="header-title avgScore">Genres</th>');
+$listHeader.append('<th class="header-title popularity">Popularity</th>');
 $listHeader.append('<th class="header-title avgScore">MAL score</th>');
 $listHeader.append('<th class="header-title avgScoreVotes">Votes</th>');
 
@@ -26,27 +28,33 @@ $('.list-item .list-table-data').each(function () {
   var $listEntry = $(this);
 
   $listEntry.append('<td class="data genres">-</td>');
+  $listEntry.append('<td class="data popularity">-</td>');
   $listEntry.append('<td class="data avgScore">-</td>');
   $listEntry.append('<td class="data avgScoreVotes">-</td>');
 
   var href = $listEntry.find('.title .link').attr('href');
   var localStorageGenresKey = 'mal-reo-ext-genres-' + href;
+  var localStoragePopularityKey = 'mal-reo-ext-popularity-' + href;
   var localStorageAvgScoreKey = 'mal-reo-ext-avgScore-' + href;
   var localStorageAvgScoreVotesKey = 'mal-reo-ext-avgScoreVotes-' + href;
 
-  if (localStorageGenresKey in localStorage && localStorageAvgScoreKey in localStorage && localStorageAvgScoreVotesKey in localStorage) {
+  if (localStorageGenresKey in localStorage && localStoragePopularityKey in localStorage && localStorageAvgScoreKey in localStorage && localStorageAvgScoreVotesKey in localStorage) {
     $listEntry.find('.data.genres').html(localStorage[localStorageGenresKey]);
+    $listEntry.find('.data.popularity').html(localStorage[localStoragePopularityKey]);
     $listEntry.find('.data.avgScore').html(localStorage[localStorageAvgScoreKey]);
     $listEntry.find('.data.avgScoreVotes').html(localStorage[localStorageAvgScoreVotesKey]);
   } else {
     $.ajax(href).done(function (html) {
       var genres = html.match(genresRegex)[1];
+      var popularity = html.match(popularityRegex)[1];
       var avgScore = html.match(avgScoreRegex)[1];
       var avgScoreVotes = html.match(avgScoreVotesRegex)[1];
       localStorage[localStorageGenresKey] = genres;
+      localStorage[localStoragePopularityKey] = popularity;
       localStorage[localStorageAvgScoreKey] = avgScore;
       localStorage[localStorageAvgScoreVotesKey] = avgScoreVotes;
       $listEntry.find('.data.genres').html(genres);
+      $listEntry.find('.data.popularity').html(popularity);
       $listEntry.find('.data.avgScore').html(avgScore);
       $listEntry.find('.data.avgScoreVotes').html(avgScoreVotes);
     });
